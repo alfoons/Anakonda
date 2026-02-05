@@ -1,6 +1,7 @@
 package com.anakonda.client.module;
 
 import com.anakonda.client.module.combat.BreachSwap;
+import com.anakonda.client.module.combat.KillAura;
 import com.anakonda.client.module.combat.Triggerbot;
 import com.anakonda.client.module.movement.NoSlowdown;
 import com.anakonda.client.module.render.ESP;
@@ -14,6 +15,7 @@ public class ModuleManager {
 
     public void init() {
         add(new Triggerbot());
+        add(new KillAura());
         add(new BreachSwap());
         add(new NoSlowdown());
         add(new ESP());

@@ -45,7 +45,9 @@ public class MixinWorldRenderer {
         RenderSystem.disableDepthTest();
         RenderSystem.depthMask(false);
         RenderSystem.disableCull();
-        // RenderSystem.setShader(GameRenderer::getPositionColorProgram);
+
+        // Shader setting is problematic due to mapping changes. Relying on default shader state.
+        // RenderSystem.setShader(net.minecraft.client.render.GameRenderer::getPositionColorProgram);
         RenderSystem.lineWidth(2.0f);
 
         Tessellator tessellator = Tessellator.getInstance();

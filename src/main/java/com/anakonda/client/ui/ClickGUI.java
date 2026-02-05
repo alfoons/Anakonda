@@ -24,22 +24,19 @@ public class ClickGUI extends Screen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        // Just render background normally
+        // Render background only once at the beginning
         this.renderBackground(context, mouseX, mouseY, delta);
 
-        // Render frames without global translate first, relying on sequential draw order
-        // Frames draw their own backgrounds and content.
+        // Disable depth test to ensure UI draws on top of everything without Z-fighting or weird clipping
+        // This is often the cause of "dimmed" or "blurred" looking UI elements if they are behind the near plane or fog
+        com.mojang.blaze3d.systems.RenderSystem.disableDepthTest();
 
         for (Frame frame : frames) {
-            // We push a pose for each frame to ensure clean state if needed,
-            // but standard 2D drawing usually doesn't need Z translation unless overlap is complex.
-            // If previous Z+100 caused blurring on some but not others, it might be due to clipping.
-
-            // We will render each frame at a distinct Z if necessary, or just rely on order.
-            // Let's try rendering simply on top.
             frame.render(context, mouseX, mouseY, delta);
             frame.updatePosition(mouseX, mouseY);
         }
+
+        com.mojang.blaze3d.systems.RenderSystem.enableDepthTest();
 
         super.render(context, mouseX, mouseY, delta);
     }
