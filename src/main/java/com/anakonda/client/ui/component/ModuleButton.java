@@ -42,7 +42,7 @@ public class ModuleButton {
         }
 
         context.fill(x, y, x + width, y + height, color);
-        context.drawText(MinecraftClient.getInstance().textRenderer, module.getName(), x + 5, y + 4, -1, true);
+        context.drawText(MinecraftClient.getInstance().textRenderer, module.getName(), x + 5, y + 4, -1, false);
     }
 
     public void mouseClicked(double mouseX, double mouseY, int button) {

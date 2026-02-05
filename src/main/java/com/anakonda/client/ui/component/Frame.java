@@ -35,11 +35,11 @@ public class Frame {
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         // Draw Header
         context.fill(x, y, x + width, y + height, new Color(40, 40, 40, 255).getRGB());
-        context.drawText(MinecraftClient.getInstance().textRenderer, category.name, x + 5, y + 3, -1, true);
+        context.drawText(MinecraftClient.getInstance().textRenderer, category.name, x + 5, y + 3, -1, false);
 
         // Draw Expand/Collapse indicator
         String expandText = open ? "-" : "+";
-        context.drawText(MinecraftClient.getInstance().textRenderer, expandText, x + width - 10, y + 3, -1, true);
+        context.drawText(MinecraftClient.getInstance().textRenderer, expandText, x + width - 10, y + 3, -1, false);
 
         if (open) {
             int offset = height;
@@ -48,8 +48,6 @@ public class Frame {
                 button.render(context, mouseX, mouseY, delta);
                 offset += height;
             }
-            // Draw background for the list
-            // context.fill(x, y + height, x + width, y + offset, new Color(0, 0, 0, 100).getRGB());
         }
     }
 
