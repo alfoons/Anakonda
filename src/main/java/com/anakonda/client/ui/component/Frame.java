@@ -46,7 +46,7 @@ public class Frame {
             for (ModuleButton button : buttons) {
                 button.setOffset(offset);
                 button.render(context, mouseX, mouseY, delta);
-                offset += height;
+                offset += button.getHeight();
             }
         }
     }

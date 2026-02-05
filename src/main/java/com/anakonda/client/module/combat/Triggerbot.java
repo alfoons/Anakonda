@@ -9,9 +9,14 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 
+import com.anakonda.client.module.setting.BooleanSetting;
+
 public class Triggerbot extends Module {
+    private final BooleanSetting checkCooldown = new BooleanSetting("Cooldown", true);
+
     public Triggerbot() {
         super("Triggerbot", "Automatically attacks entities you are looking at", Category.COMBAT);
+        addSetting(checkCooldown);
     }
 
     @Override
@@ -19,7 +24,7 @@ public class Triggerbot extends Module {
         if (mc.player == null || mc.world == null) return;
 
         // Check cooldown (1.0 = full charge)
-        if (mc.player.getAttackCooldownProgress(0.5f) < 1.0f) return;
+        if (checkCooldown.getValue() && mc.player.getAttackCooldownProgress(0.5f) < 1.0f) return;
 
         HitResult target = mc.crosshairTarget;
         if (target instanceof EntityHitResult entityHit) {

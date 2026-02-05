@@ -46,6 +46,7 @@ public class MixinWorldRenderer {
         RenderSystem.depthMask(false);
         RenderSystem.disableCull();
         // RenderSystem.setShader(GameRenderer::getPositionColorProgram);
+        RenderSystem.lineWidth(2.0f);
 
         Tessellator tessellator = Tessellator.getInstance();
 

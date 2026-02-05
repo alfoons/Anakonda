@@ -11,24 +11,24 @@ import net.minecraft.registry.RegistryKeys;
 
 public class BreachSwap extends Module {
     public BreachSwap() {
-        super("BreachSwap", "Automatically swaps to a Mace with Breach when attacking", Category.COMBAT);
+        super("AutoMace", "Automatically swaps to any Mace when attacking", Category.COMBAT);
     }
 
     public void onAttack() {
         if (!isEnabled()) return;
         if (mc.player == null) return;
 
-        int slot = findBreachMace();
+        int slot = findMace();
         if (slot != -1 && slot != mc.player.getInventory().selectedSlot) {
             mc.player.getInventory().selectedSlot = slot;
             mc.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(slot));
         }
     }
 
-    private int findBreachMace() {
+    private int findMace() {
         for (int i = 0; i < 9; i++) {
             ItemStack stack = mc.player.getInventory().getStack(i);
-            if (isMace(stack) && hasBreach(stack)) {
+            if (isMace(stack)) {
                 return i;
             }
         }
@@ -36,20 +36,7 @@ public class BreachSwap extends Module {
     }
 
     private boolean isMace(ItemStack stack) {
-        // Simple check by translation key or item instance if possible
+        // Check for mace item key
         return stack.getItem().getTranslationKey().contains("mace");
-    }
-
-    private boolean hasBreach(ItemStack stack) {
-        ItemEnchantmentsComponent enchantments = stack.get(DataComponentTypes.ENCHANTMENTS);
-        if (enchantments != null) {
-            for (var entry : enchantments.getEnchantmentEntries()) {
-                String key = entry.getKey().getKey().map(k -> k.getValue().toString()).orElse("");
-                if (key.contains("breach")) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 }
