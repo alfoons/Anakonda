@@ -1,29 +1,38 @@
 package com.anakonda.client.module.combat;
 
+import com.anakonda.client.event.Event;
+import com.anakonda.client.event.EventManager;
+import com.anakonda.client.event.impl.PacketEvent;
 import com.anakonda.client.module.Category;
 import com.anakonda.client.module.Module;
 import com.anakonda.client.module.setting.BooleanSetting;
 import com.anakonda.client.module.setting.NumberSetting;
+import com.anakonda.client.utils.RotationUtils;
+import com.anakonda.client.mixin.PlayerMoveC2SPacketAccessor;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.util.Hand;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
 
 import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class KillAura extends Module {
     private final NumberSetting range = new NumberSetting("Range", 4.0, 3.0, 6.0);
     private final BooleanSetting rotate = new BooleanSetting("Rotate", true);
-    // private final BooleanSetting silent = new BooleanSetting("Silent", false); // Not implemented for "legit" feel
+    private final BooleanSetting cooldown = new BooleanSetting("1.9 Delay", true);
+
+    private Entity target;
 
     public KillAura() {
         super("KillAura", "Attacks entities around you", Category.COMBAT);
         addSetting(range);
         addSetting(rotate);
+        addSetting(cooldown);
+    }
+
+    @Override
+    public void onEnable() {
+        EventManager.INSTANCE.register(this::onPacket);
     }
 
     @Override
@@ -31,7 +40,7 @@ public class KillAura extends Module {
         if (mc.player == null || mc.world == null) return;
 
         // Find target
-        Entity target = null;
+        target = null;
         double minDistance = range.getValue();
 
         for (Entity entity : mc.world.getEntities()) {
@@ -44,40 +53,32 @@ public class KillAura extends Module {
         }
 
         if (target != null) {
-            // Rotations (Legit-like: visible client rotation)
-            if (rotate.getValue()) {
-                faceEntity(target);
-            }
+            // Attack logic
+            boolean canAttack = !cooldown.getValue() || mc.player.getAttackCooldownProgress(0.5f) >= 1.0f;
 
-            // Attack logic similar to Triggerbot but automatic
-            if (mc.player.getAttackCooldownProgress(0.5f) >= 1.0f) {
-                // Check if we are actually looking at it or close enough to hit via raycast
-                // For simplified legit aura, we attack if close.
-                // A stricter check would use crosshairTarget or Raycast.
-
-                // Attack
+            if (canAttack) {
                 mc.interactionManager.attackEntity(mc.player, target);
                 mc.player.swingHand(Hand.MAIN_HAND);
             }
         }
     }
 
-    private void faceEntity(Entity target) {
-        Vec3d targetPos = target.getEyePos();
-        Vec3d playerPos = mc.player.getEyePos();
+    private void onPacket(Event event) {
+        if (!isEnabled() || target == null) return;
 
-        double dX = targetPos.x - playerPos.x;
-        double dY = targetPos.y - playerPos.y;
-        double dZ = targetPos.z - playerPos.z;
-        double dist = Math.sqrt(dX * dX + dZ * dZ);
+        if (event instanceof PacketEvent.Send packetEvent) {
+            if (packetEvent.getPacket() instanceof PlayerMoveC2SPacket packet) {
+                if (rotate.getValue()) {
+                    float[] rotations = RotationUtils.getRotations(mc.player.getEyePos(), target.getEyePos());
 
-        float yaw = (float) (MathHelper.atan2(dZ, dX) * 180.0 / Math.PI) - 90.0f;
-        float pitch = (float) (-(MathHelper.atan2(dY, dist) * 180.0 / Math.PI));
-
-        // Smooth rotation could be added here by interpolating current yaw/pitch towards target
-        // For now, instant snap (or fast snap)
-
-        mc.player.setYaw(yaw);
-        mc.player.setPitch(pitch);
+                    // Silent Rotation via Accessor
+                    if (packet instanceof PlayerMoveC2SPacketAccessor accessor) {
+                        accessor.setYaw(rotations[0]);
+                        accessor.setPitch(rotations[1]);
+                        // accessor.setLook(true); // Removed as field not found
+                    }
+                }
+            }
+        }
     }
 }

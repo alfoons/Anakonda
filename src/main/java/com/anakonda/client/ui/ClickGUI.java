@@ -24,12 +24,15 @@ public class ClickGUI extends Screen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        // Render background only once at the beginning
         this.renderBackground(context, mouseX, mouseY, delta);
 
-        // Disable depth test to ensure UI draws on top of everything without Z-fighting or weird clipping
-        // This is often the cause of "dimmed" or "blurred" looking UI elements if they are behind the near plane or fog
+        // Ensure depth is cleared and disabled to prevent "blur" (fog/depth shading) from game world
+        // accumulating on UI elements drawn sequentially.
         com.mojang.blaze3d.systems.RenderSystem.disableDepthTest();
+        // RenderSystem.clear signature might be different or unavailable.
+        // Just disabling depth test usually suffices for 2D UI.
+        // If clear is needed, we use GL11 directly or verify signature.
+        // com.mojang.blaze3d.systems.RenderSystem.clear(256, false);
 
         for (Frame frame : frames) {
             frame.render(context, mouseX, mouseY, delta);

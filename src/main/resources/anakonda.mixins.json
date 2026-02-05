@@ -7,7 +7,8 @@
 		"MixinClientConnection",
 		"MixinKeyboard",
 		"MixinLivingEntity",
-		"MixinWorldRenderer"
+		"MixinWorldRenderer",
+		"PlayerMoveC2SPacketAccessor"
 	],
 	"injectors": {
 		"defaultRequire": 1
