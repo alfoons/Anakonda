@@ -5,6 +5,7 @@ import com.anakonda.client.module.combat.KillAura;
 import com.anakonda.client.module.combat.Triggerbot;
 import com.anakonda.client.module.movement.NoSlowdown;
 import com.anakonda.client.module.render.ESP;
+import com.anakonda.client.module.render.HUD;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,6 +20,7 @@ public class ModuleManager {
         add(new BreachSwap());
         add(new NoSlowdown());
         add(new ESP());
+        add(new HUD());
     }
 
     public List<Module> getModules() {

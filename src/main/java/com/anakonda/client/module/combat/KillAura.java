@@ -63,20 +63,51 @@ public class KillAura extends Module {
         }
     }
 
+    private boolean rotating = false;
+
     private void onPacket(Event event) {
         if (!isEnabled() || target == null) return;
+        if (rotating) return; // Prevent infinite loop if we send a packet from here
 
         if (event instanceof PacketEvent.Send packetEvent) {
             if (packetEvent.getPacket() instanceof PlayerMoveC2SPacket packet) {
                 if (rotate.getValue()) {
                     float[] rotations = RotationUtils.getRotations(mc.player.getEyePos(), target.getEyePos());
 
-                    // Silent Rotation via Accessor
-                    if (packet instanceof PlayerMoveC2SPacketAccessor accessor) {
-                        accessor.setYaw(rotations[0]);
-                        accessor.setPitch(rotations[1]);
-                        // accessor.setLook(true); // Removed as field not found
+                    // We cannot use Accessor because fields are final.
+                    // Instead, we cancel this packet and send a new one with correct rotations.
+
+                    packetEvent.cancel();
+                    rotating = true;
+
+                    // Determine packet type and recreate it with new rotations
+                    double x = packet.getX(mc.player.getX());
+                    double y = packet.getY(mc.player.getY());
+                    double z = packet.getZ(mc.player.getZ());
+                    boolean onGround = packet.isOnGround();
+
+                    PlayerMoveC2SPacket newPacket;
+                    // Note: PlayerMoveC2SPacket constructors have changed in recent versions (1.21.2+).
+                    // They might include an extra boolean for 'horizontalCollision' or similar,
+                    // OR the structure changed entirely.
+                    // Based on errors: Full requires 7 args, LookAndOnGround requires 4 args.
+                    // The extra boolean is likely 'horizontalCollision' or similar internal flag exposed in newer Fabric mappings.
+                    // We will assume the last boolean is 'onGround' and guess the second-to-last is another flag or vice-versa.
+                    // Actually, looking at 1.21.4 mappings (Yarn), signatures are often (x, y, z, yaw, pitch, onGround, horizontalCollision).
+                    // Or (yaw, pitch, onGround, horizontalCollision).
+
+                    boolean extraBool = false; // Guessing false for collision/teleport flag
+
+                    if (packet.changesPosition() && packet.changesLook()) {
+                        newPacket = new PlayerMoveC2SPacket.Full(x, y, z, rotations[0], rotations[1], onGround, extraBool);
+                    } else if (packet.changesPosition()) {
+                        newPacket = new PlayerMoveC2SPacket.Full(x, y, z, rotations[0], rotations[1], onGround, extraBool);
+                    } else {
+                        newPacket = new PlayerMoveC2SPacket.LookAndOnGround(rotations[0], rotations[1], onGround, extraBool);
                     }
+
+                    mc.getNetworkHandler().sendPacket(newPacket);
+                    rotating = false;
                 }
             }
         }

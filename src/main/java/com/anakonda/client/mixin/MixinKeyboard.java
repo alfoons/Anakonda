@@ -4,7 +4,7 @@ import com.anakonda.client.Anakonda;
 import com.anakonda.client.event.EventManager;
 import com.anakonda.client.event.impl.KeyEvent;
 import com.anakonda.client.module.ModuleManager;
-import com.anakonda.client.ui.ClickGUI;
+import com.anakonda.client.ui.newgui.NewClickGUI;
 import net.minecraft.client.Keyboard;
 import net.minecraft.client.MinecraftClient;
 import org.lwjgl.glfw.GLFW;
@@ -22,10 +22,10 @@ public class MixinKeyboard {
             // Handle ClickGUI bind
             if (key == GLFW.GLFW_KEY_RIGHT_SHIFT) {
                 MinecraftClient mc = MinecraftClient.getInstance();
-                if (mc.currentScreen instanceof ClickGUI) {
+                if (mc.currentScreen instanceof NewClickGUI) {
                     mc.setScreen(null);
                 } else if (mc.currentScreen == null) {
-                    mc.setScreen(ClickGUI.INSTANCE);
+                    mc.setScreen(NewClickGUI.INSTANCE);
                 }
             }
 
