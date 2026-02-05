@@ -27,7 +27,8 @@ public class NoSlowdown extends Module {
         if (!isEnabled()) return;
 
         if (event instanceof PacketEvent.Send packetEvent) {
-             if (mc.player != null && mc.player.isUsingItem() && !mc.player.isRiding()) {
+             // We check getItemUseTimeLeft() > 0 because our Mixin forces isUsingItem() to false
+             if (mc.player != null && mc.player.getItemUseTimeLeft() > 0 && !mc.player.getActiveItem().isEmpty() && !mc.player.isRiding()) {
                  // Grim AC Bypass logic often involves sending slot updates or specific packet ordering
                  // This is a basic Grim implementation concept:
                  // When moving while using item, send a slot update to current slot to confuse checks
