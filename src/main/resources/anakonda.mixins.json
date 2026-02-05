@@ -6,7 +6,8 @@
 		"MixinMinecraftClient",
 		"MixinClientConnection",
 		"MixinKeyboard",
-		"MixinLivingEntity"
+		"MixinLivingEntity",
+		"MixinWorldRenderer"
 	],
 	"injectors": {
 		"defaultRequire": 1

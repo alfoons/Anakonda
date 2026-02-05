@@ -1,7 +1,9 @@
 package com.anakonda.client.module;
 
+import com.anakonda.client.module.combat.BreachSwap;
 import com.anakonda.client.module.combat.Triggerbot;
 import com.anakonda.client.module.movement.NoSlowdown;
+import com.anakonda.client.module.render.ESP;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,7 +14,9 @@ public class ModuleManager {
 
     public void init() {
         add(new Triggerbot());
+        add(new BreachSwap());
         add(new NoSlowdown());
+        add(new ESP());
     }
 
     public List<Module> getModules() {

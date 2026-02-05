@@ -25,10 +25,18 @@ public class ClickGUI extends Screen {
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         this.renderBackground(context, mouseX, mouseY, delta);
+
+        // Ensure we are rendering on top
+        context.getMatrices().push();
+        context.getMatrices().translate(0, 0, 100);
+
         for (Frame frame : frames) {
             frame.render(context, mouseX, mouseY, delta);
             frame.updatePosition(mouseX, mouseY);
         }
+
+        context.getMatrices().pop();
+
         super.render(context, mouseX, mouseY, delta);
     }
 

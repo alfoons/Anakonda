@@ -2,6 +2,7 @@ package com.anakonda.client.module.combat;
 
 import com.anakonda.client.module.Category;
 import com.anakonda.client.module.Module;
+import com.anakonda.client.module.ModuleManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.Hand;
@@ -24,6 +25,12 @@ public class Triggerbot extends Module {
         if (target instanceof EntityHitResult entityHit) {
             Entity entity = entityHit.getEntity();
             if (entity instanceof LivingEntity && entity.isAlive()) {
+                // Breach Swap integration
+                BreachSwap breachSwap = ModuleManager.INSTANCE.getModule(BreachSwap.class);
+                if (breachSwap != null && breachSwap.isEnabled()) {
+                    breachSwap.onAttack();
+                }
+
                 // Attack
                 mc.interactionManager.attackEntity(mc.player, entity);
                 mc.player.swingHand(Hand.MAIN_HAND);
