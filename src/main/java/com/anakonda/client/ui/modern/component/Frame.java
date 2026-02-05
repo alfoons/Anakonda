@@ -1,4 +1,4 @@
-package com.anakonda.client.ui.newgui.component;
+package com.anakonda.client.ui.modern.component;
 
 import com.anakonda.client.module.Category;
 import com.anakonda.client.module.Module;
@@ -9,44 +9,47 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Panel extends Component {
+public class Frame extends Component {
     private final Category category;
-    private final List<ModuleButton> buttons = new ArrayList<>();
+    private final List<Button> buttons = new ArrayList<>();
     private boolean open = true;
     private boolean dragging;
     private int dragX, dragY;
 
-    public Panel(Category category, int x, int y, int width, int height) {
+    public Frame(Category category, int x, int y, int width, int height) {
         super(x, y, width, height);
         this.category = category;
 
-        int offset = height;
         for (Module module : ModuleManager.INSTANCE.getModulesByCategory(category)) {
-            buttons.add(new ModuleButton(module, x, y + offset, width, 15, this));
-            offset += 15;
+            buttons.add(new Button(module, this, x, y, width, 16));
         }
     }
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        // Draw Header
-        context.fill(x, y, x + width, y + height, new Color(20, 20, 20, 255).getRGB());
+        // Dragging Logic
+        if (dragging) {
+            x = mouseX - dragX;
+            y = mouseY - dragY;
+        }
+
+        // Draw Header (Title Bar)
+        context.fill(x, y, x + width, y + height, new Color(10, 10, 10, 255).getRGB());
+        // Gradient line at bottom of header
+        context.fill(x, y + height - 1, x + width, y + height, new Color(0, 120, 215, 255).getRGB());
+
         context.drawText(mc.textRenderer, category.name, x + 5, y + 4, -1, false);
 
         if (open) {
             int offset = height;
-            for (ModuleButton button : buttons) {
-                button.x = x;
+            for (Button button : buttons) {
+                button.setX(x);
                 button.setY(y + offset);
                 button.render(context, mouseX, mouseY, delta);
                 offset += button.getHeight();
             }
-            // Draw border or background for list if needed
-        }
-
-        if (dragging) {
-            x = (int)mouseX - dragX;
-            y = (int)mouseY - dragY;
+            // Draw border around the list
+            // context.drawBorder(x, y + height, width, offset - height, new Color(20, 20, 20, 255).getRGB());
         }
     }
 
@@ -64,7 +67,7 @@ public class Panel extends Component {
         }
 
         if (open) {
-            for (ModuleButton btn : buttons) {
+            for (Button btn : buttons) {
                 btn.mouseClicked(mouseX, mouseY, button);
             }
         }
@@ -74,7 +77,7 @@ public class Panel extends Component {
     public void mouseReleased(double mouseX, double mouseY, int button) {
         dragging = false;
         if (open) {
-            for (ModuleButton btn : buttons) {
+            for (Button btn : buttons) {
                 btn.mouseReleased(mouseX, mouseY, button);
             }
         }

@@ -1,7 +1,8 @@
-package com.anakonda.client.ui;
+package com.anakonda.client.ui.modern;
 
 import com.anakonda.client.module.Category;
-import com.anakonda.client.ui.component.Frame;
+import com.anakonda.client.ui.modern.component.Frame;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
@@ -9,38 +10,34 @@ import net.minecraft.text.Text;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ClickGUI extends Screen {
-    public static final ClickGUI INSTANCE = new ClickGUI();
+public class ModernClickGUI extends Screen {
+    public static final ModernClickGUI INSTANCE = new ModernClickGUI();
     private final List<Frame> frames = new ArrayList<>();
 
-    public ClickGUI() {
-        super(Text.of("ClickGUI"));
-        int x = 10;
+    public ModernClickGUI() {
+        super(Text.of("AnakondaGUI"));
+        int x = 20;
         for (Category category : Category.values()) {
-            frames.add(new Frame(category, x, 10, 100, 15));
-            x += 110;
+            frames.add(new Frame(category, x, 20, 110, 18));
+            x += 125;
         }
     }
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        // Draw standard background (gradient)
         this.renderBackground(context, mouseX, mouseY, delta);
 
-        // Ensure depth is cleared and disabled to prevent "blur" (fog/depth shading) from game world
-        // accumulating on UI elements drawn sequentially.
-        com.mojang.blaze3d.systems.RenderSystem.disableDepthTest();
-        // RenderSystem.clear signature might be different or unavailable.
-        // Just disabling depth test usually suffices for 2D UI.
-        // If clear is needed, we use GL11 directly or verify signature.
-        // com.mojang.blaze3d.systems.RenderSystem.clear(256, false);
+        // Fix for "blur" / depth issues: Disable depth test for UI
+        RenderSystem.disableDepthTest();
 
         for (Frame frame : frames) {
             frame.render(context, mouseX, mouseY, delta);
-            frame.updatePosition(mouseX, mouseY);
         }
 
-        com.mojang.blaze3d.systems.RenderSystem.enableDepthTest();
+        RenderSystem.enableDepthTest();
 
+        // Tooltip logic can be added here
         super.render(context, mouseX, mouseY, delta);
     }
 

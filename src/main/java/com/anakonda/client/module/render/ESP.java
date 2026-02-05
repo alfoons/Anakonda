@@ -18,11 +18,12 @@ import com.anakonda.client.module.setting.BooleanSetting;
 
 public class ESP extends Module {
     public final BooleanSetting showBox = new BooleanSetting("Box", true);
-    // public final BooleanSetting showNametags = new BooleanSetting("Nametags", true);
+    public final BooleanSetting showNametags = new BooleanSetting("Nametags", true);
 
     public ESP() {
         super("ESP", "See entities through walls", Category.RENDER);
         addSetting(showBox);
+        addSetting(showNametags);
     }
 
     // Called from WorldRenderer mixin
