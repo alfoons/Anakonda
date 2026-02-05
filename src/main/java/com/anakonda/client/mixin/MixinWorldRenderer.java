@@ -28,7 +28,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MixinWorldRenderer {
 
     @Inject(method = "render", at = @At("RETURN"))
-    private void onRender(net.minecraft.client.render.RenderTickCounter tickCounter, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, Matrix4f positionMatrix, Matrix4f projectionMatrix, CallbackInfo ci) {
+    private void onRender(net.minecraft.client.render.RenderTickCounter tickCounter, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f positionMatrix, Matrix4f projectionMatrix, CallbackInfo ci) {
         ESP esp = ModuleManager.INSTANCE.getModule(ESP.class);
         if (esp != null && esp.isEnabled()) {
             // tickCounter.getTickDelta(true) is likely what we want for partial ticks
