@@ -1,0 +1,15 @@
+.gradle/
+build/
+bin/
+run/
+.idea/
+*.iml
+*.ipr
+*.iws
+.settings/
+.classpath
+.project
+gradle/wrapper/gradle-wrapper.jar
+gradle/wrapper/gradle-wrapper.properties
+gradlew
+gradlew.bat
