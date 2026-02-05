@@ -29,15 +29,10 @@ public class MixinWorldRenderer {
 
 
     @Inject(method = "renderEntities", at = @At("RETURN"))
-    private void onRenderEntities(Camera camera, net.minecraft.client.render.RenderTickCounter tickCounter, java.util.List<Entity> entities, CallbackInfo ci) {
+    private void onRenderEntities(MatrixStack matrices, VertexConsumerProvider.Immediate immediate, Camera camera, net.minecraft.client.render.RenderTickCounter tickCounter, java.util.List<Entity> entities, CallbackInfo ci) {
         ESP esp = ModuleManager.INSTANCE.getModule(ESP.class);
         if (esp != null && esp.isEnabled()) {
-            // We need the matrix. We can get it from RenderSystem or capture it.
-            // But renderESP uses manual buffer building which requires setting up matrices.
-            // For simplicity in this "fix it" mode, we will trust the caller set up the projection.
-            // We might need to get the model view matrix.
-
-            org.joml.Matrix4f matrix = new org.joml.Matrix4f(); // Placeholder or identity if we draw in world space
+            org.joml.Matrix4f matrix = matrices.peek().getPositionMatrix();
             renderESP(camera, tickCounter.getTickDelta(true), matrix);
         }
     }
