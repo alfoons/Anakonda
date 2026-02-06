@@ -47,7 +47,7 @@ public class MixinWorldRenderer {
         RenderSystem.disableCull();
 
         // Use functional interface for shader supplier to match mapping changes (Supplier<Shader>)
-        // RenderSystem.setShader(() -> net.minecraft.client.render.GameRenderer.getPositionColorProgram());
+        // RenderSystem.setShader(GameRenderer::getPositionColorProgram);
         RenderSystem.lineWidth(2.0f);
 
         Tessellator tessellator = Tessellator.getInstance();

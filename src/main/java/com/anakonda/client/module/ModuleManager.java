@@ -1,9 +1,12 @@
 package com.anakonda.client.module;
 
+import com.anakonda.client.module.combat.Backtrack;
 import com.anakonda.client.module.combat.BreachSwap;
 import com.anakonda.client.module.combat.KillAura;
 import com.anakonda.client.module.combat.Triggerbot;
 import com.anakonda.client.module.movement.NoSlowdown;
+import com.anakonda.client.module.movement.Scaffold;
+import com.anakonda.client.module.movement.Velocity;
 import com.anakonda.client.module.render.ESP;
 import com.anakonda.client.module.render.HUD;
 import java.util.ArrayList;
@@ -17,8 +20,11 @@ public class ModuleManager {
     public void init() {
         add(new Triggerbot());
         add(new KillAura());
+        add(new Backtrack());
         add(new BreachSwap());
         add(new NoSlowdown());
+        add(new Scaffold());
+        add(new Velocity());
         add(new ESP());
         add(new HUD());
     }

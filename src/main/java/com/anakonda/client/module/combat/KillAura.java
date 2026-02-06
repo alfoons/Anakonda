@@ -25,6 +25,7 @@ public class KillAura extends Module {
     private final ModeSetting mode = new ModeSetting("Mode", "Legit", "Legit", "Rage");
     private final BooleanSetting cooldown = new BooleanSetting("1.9 Delay", true);
     private final BooleanSetting wallCheck = new BooleanSetting("Wall Check", true);
+    private final NumberSetting rotationSpeed = new NumberSetting("Rot Speed", 10.0, 1.0, 180.0);
 
     private Entity target;
     private final Random random = new Random();
@@ -35,6 +36,7 @@ public class KillAura extends Module {
         addSetting(mode);
         addSetting(cooldown);
         addSetting(wallCheck);
+        addSetting(rotationSpeed);
     }
 
     @Override
@@ -70,6 +72,24 @@ public class KillAura extends Module {
         }
 
         if (target != null) {
+            // Legit Mode Rotation
+            if (mode.is("Legit")) {
+                float[] rotations = RotationUtils.getRotations(mc.player.getEyePos(), target.getEyePos());
+                float sensitivity = rotationSpeed.getValue().floatValue();
+
+                float yawDiff = MathHelper.wrapDegrees(rotations[0] - mc.player.getYaw());
+                float pitchDiff = MathHelper.wrapDegrees(rotations[1] - mc.player.getPitch());
+
+                // Simple clamp for speed
+                if (yawDiff > sensitivity) yawDiff = sensitivity;
+                if (yawDiff < -sensitivity) yawDiff = -sensitivity;
+                if (pitchDiff > sensitivity) pitchDiff = sensitivity;
+                if (pitchDiff < -sensitivity) pitchDiff = -sensitivity;
+
+                mc.player.setYaw(mc.player.getYaw() + yawDiff);
+                mc.player.setPitch(mc.player.getPitch() + pitchDiff);
+            }
+
             // Attack logic
             boolean canAttack = !cooldown.getValue() || mc.player.getAttackCooldownProgress(0.5f) >= 1.0f;
 
