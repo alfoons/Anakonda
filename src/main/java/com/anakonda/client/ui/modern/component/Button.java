@@ -2,6 +2,7 @@ package com.anakonda.client.ui.modern.component;
 
 import com.anakonda.client.module.Module;
 import com.anakonda.client.module.setting.BooleanSetting;
+import com.anakonda.client.module.setting.ModeSetting;
 import com.anakonda.client.module.setting.NumberSetting;
 import com.anakonda.client.module.setting.Setting;
 import net.minecraft.client.gui.DrawContext;
@@ -27,6 +28,8 @@ public class Button extends Component {
                 settingComponents.add(new Checkbox(bs, this, x, 0, width, height));
             } else if (setting instanceof NumberSetting ns) {
                 settingComponents.add(new Slider(ns, this, x, 0, width, height));
+            } else if (setting instanceof ModeSetting ms) {
+                settingComponents.add(new ModeSelector(ms, this, x, 0, width, height));
             }
         }
     }

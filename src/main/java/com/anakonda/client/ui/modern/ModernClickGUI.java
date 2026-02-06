@@ -25,10 +25,10 @@ public class ModernClickGUI extends Screen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        // Draw standard background (gradient)
         this.renderBackground(context, mouseX, mouseY, delta);
 
-        // Fix for "blur" / depth issues: Disable depth test for UI
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
         RenderSystem.disableDepthTest();
 
         for (Frame frame : frames) {
@@ -36,9 +36,11 @@ public class ModernClickGUI extends Screen {
         }
 
         RenderSystem.enableDepthTest();
+        RenderSystem.disableBlend();
 
-        // Tooltip logic can be added here
-        super.render(context, mouseX, mouseY, delta);
+        // Removed super.render() to prevent overlay blur issues
+        // Manually render tooltips if necessary, but Screen.render mainly draws background and children
+        // Since we manage children manually in the loop above, super.render is redundant/harmful here.
     }
 
     @Override
