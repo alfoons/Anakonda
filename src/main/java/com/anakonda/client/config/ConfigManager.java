@@ -45,26 +45,33 @@ public class ConfigManager {
         if (!configFile.exists()) return;
 
         try (FileReader reader = new FileReader(configFile)) {
-            JsonArray array = gson.fromJson(reader, JsonArray.class);
-            if (array == null) return;
+            // Use generic JsonElement to handle potential structure changes gracefully
+            com.google.gson.JsonElement element = com.google.gson.JsonParser.parseReader(reader);
 
-            for (var element : array) {
-                JsonObject obj = element.getAsJsonObject();
-                if (obj.has("name")) {
-                    String name = obj.get("name").getAsString();
-                    Module module = ModuleManager.INSTANCE.getModule(name);
-                    if (module != null) {
-                        if (obj.has("enabled") && obj.get("enabled").getAsBoolean()) {
-                            module.setEnabled(true);
-                        }
-                        if (obj.has("key")) {
-                            module.setKey(obj.get("key").getAsInt());
+            if (element.isJsonArray()) {
+                JsonArray array = element.getAsJsonArray();
+                for (var el : array) {
+                    if (el.isJsonObject()) {
+                        JsonObject obj = el.getAsJsonObject();
+                        if (obj.has("name")) {
+                            String name = obj.get("name").getAsString();
+                            Module module = ModuleManager.INSTANCE.getModule(name);
+                            if (module != null) {
+                                if (obj.has("enabled") && obj.get("enabled").getAsBoolean()) {
+                                    module.setEnabled(true);
+                                }
+                                if (obj.has("key")) {
+                                    module.setKey(obj.get("key").getAsInt());
+                                }
+                            }
                         }
                     }
                 }
+            } else {
+                Anakonda.LOGGER.warn("Config file structure invalid (not an array), resetting config.");
             }
-        } catch (IOException e) {
-            Anakonda.LOGGER.error("Failed to load config", e);
+        } catch (Exception e) {
+            Anakonda.LOGGER.error("Failed to load config, starting with defaults", e);
         }
     }
 }
