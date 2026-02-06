@@ -20,6 +20,7 @@ public class KillAura extends Module {
     private final NumberSetting range = new NumberSetting("Range", 4.0, 3.0, 6.0);
     private final BooleanSetting rotate = new BooleanSetting("Rotate", true);
     private final BooleanSetting cooldown = new BooleanSetting("1.9 Delay", true);
+    private final BooleanSetting wallCheck = new BooleanSetting("Wall Check", true);
 
     private Entity target;
 
@@ -28,6 +29,7 @@ public class KillAura extends Module {
         addSetting(range);
         addSetting(rotate);
         addSetting(cooldown);
+        addSetting(wallCheck);
     }
 
     @Override
@@ -46,6 +48,16 @@ public class KillAura extends Module {
         for (Entity entity : mc.world.getEntities()) {
             if (entity instanceof LivingEntity living && entity != mc.player) {
                 if (entity.distanceTo(mc.player) <= minDistance && !entity.isRemoved() && living.getHealth() > 0) {
+                    // Wall Check logic
+                    if (wallCheck.getValue() && !mc.player.canSee(entity)) {
+                        continue;
+                    }
+                    // Intelligent Targeting (Heuristic: Low HP priority)
+                    // If current target is defined and has lower HP than candidate, keep current
+                    if (target instanceof LivingEntity currentTarget) {
+                        if (living.getHealth() >= currentTarget.getHealth()) continue;
+                    }
+
                     target = entity;
                     minDistance = entity.distanceTo(mc.player);
                 }
@@ -91,19 +103,17 @@ public class KillAura extends Module {
                     // They might include an extra boolean for 'horizontalCollision' or similar,
                     // OR the structure changed entirely.
                     // Based on errors: Full requires 7 args, LookAndOnGround requires 4 args.
-                    // The extra boolean is likely 'horizontalCollision' or similar internal flag exposed in newer Fabric mappings.
-                    // We will assume the last boolean is 'onGround' and guess the second-to-last is another flag or vice-versa.
-                    // Actually, looking at 1.21.4 mappings (Yarn), signatures are often (x, y, z, yaw, pitch, onGround, horizontalCollision).
-                    // Or (yaw, pitch, onGround, horizontalCollision).
-
-                    boolean extraBool = false; // Guessing false for collision/teleport flag
+                    // 1.21.4 packet flag fix: The extra boolean is 'horizontalCollision'.
+                    boolean horizontalCollision = mc.player.horizontalCollision;
 
                     if (packet.changesPosition() && packet.changesLook()) {
-                        newPacket = new PlayerMoveC2SPacket.Full(x, y, z, rotations[0], rotations[1], onGround, extraBool);
+                        newPacket = new PlayerMoveC2SPacket.Full(x, y, z, rotations[0], rotations[1], onGround, horizontalCollision);
                     } else if (packet.changesPosition()) {
-                        newPacket = new PlayerMoveC2SPacket.Full(x, y, z, rotations[0], rotations[1], onGround, extraBool);
+                        // Was Pos only, convert to Full to include rotation
+                        newPacket = new PlayerMoveC2SPacket.Full(x, y, z, rotations[0], rotations[1], onGround, horizontalCollision);
                     } else {
-                        newPacket = new PlayerMoveC2SPacket.LookAndOnGround(rotations[0], rotations[1], onGround, extraBool);
+                        // Was Look only or OnGround only, send LookAndOnGround
+                        newPacket = new PlayerMoveC2SPacket.LookAndOnGround(rotations[0], rotations[1], onGround, horizontalCollision);
                     }
 
                     mc.getNetworkHandler().sendPacket(newPacket);
